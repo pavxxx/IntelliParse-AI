@@ -13,11 +13,11 @@ client = genai.Client(
 
 def parse_resume(text):
     prompt = f"""
-You are an AI Resume Parser.
-
-Extract the resume into the following JSON.
+Convert the following resume into JSON.
 
 Return ONLY valid JSON.
+
+Format:
 
 {{
     "name": "",
@@ -25,8 +25,23 @@ Return ONLY valid JSON.
     "phone": "",
     "skills": [],
     "education": [],
-    "experience": []
+    "experience": [],
+    "projects": [],
+    "certifications": [],
+    "github": "",
+    "linkedin": ""
 }}
+
+Extract every project mentioned.
+
+For each project include:
+- project_name
+- technologies
+- description
+
+Extract all certifications.
+Extract GitHub URL if available.
+Extract LinkedIn URL if available.
 
 Resume:
 

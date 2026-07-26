@@ -13,3 +13,7 @@ class Resume(Base):
     skills = Column(Text)
     education = Column(Text)
     experience = Column(Text)
+    projects = Column(Text)
+    certifications = Column(Text)
+    github = Column(String)
+    linkedin = Column(String)
