@@ -8,6 +8,8 @@ from models import Resume
 from sqlalchemy import or_
 import json
 from ats import analyze_resume
+from jd_match import match_resume
+from schemas import JobDescriptionRequest
 
 
 app = FastAPI()
@@ -164,3 +166,48 @@ LinkedIn:
     analysis = analyze_resume(resume_text)
 
     return analysis
+
+@app.post("/jd-match/{resume_id}")
+def jd_match(resume_id: int, request: JobDescriptionRequest):
+
+    db = SessionLocal()
+
+    resume = db.query(Resume).filter(Resume.id == resume_id).first()
+
+    db.close()
+
+    if resume is None:
+        return {"message": "Resume not found"}
+
+    resume_text = f"""
+Name:
+{resume.name}
+
+Skills:
+{json.loads(resume.skills)}
+
+Education:
+{json.loads(resume.education)}
+
+Experience:
+{json.loads(resume.experience)}
+
+Projects:
+{json.loads(resume.projects)}
+
+Certifications:
+{json.loads(resume.certifications)}
+
+GitHub:
+{resume.github}
+
+LinkedIn:
+{resume.linkedin}
+"""
+
+    result = match_resume(
+        resume_text,
+        request.job_description
+    )
+
+    return result
