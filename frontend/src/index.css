@@ -1,0 +1,70 @@
+@import "tailwindcss";
+
+@layer base {
+  * {
+    font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
+  body {
+    background-color: #F5F5F5;
+    color: #111111;
+    font-family: 'Space Grotesk', sans-serif;
+    margin: 0;
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+  }
+}
+
+/* Brutalist Utility Classes */
+.brutalist-border {
+  border: 3px solid #111111;
+}
+
+.brutalist-border-t {
+  border-top: 3px solid #111111;
+}
+
+.brutalist-border-b {
+  border-bottom: 3px solid #111111;
+}
+
+.brutalist-border-l {
+  border-left: 3px solid #111111;
+}
+
+.brutalist-border-r {
+  border-right: 3px solid #111111;
+}
+
+.brutalist-btn {
+  border: 3px solid #111111;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.brutalist-card {
+  border: 3px solid #111111;
+  background-color: #FFFFFF;
+}
+
+.brutalist-input {
+  border: 3px solid #111111;
+  background-color: #FFFFFF;
+  color: #111111;
+  outline: none;
+}
+
+.brutalist-input:focus {
+  background-color: #FFFFFF;
+  border-color: #2563EB;
+}
