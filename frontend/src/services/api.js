@@ -30,4 +30,20 @@ export const getResumes = async () => {
   return response.data;
 };
 
+// Chat with a resume using the stored JSON as knowledge source
+export const chatWithResume = async ({ resumeId, question, conversationHistory = [], jobDescription = null }) => {
+  const payload = {
+    resume_id: resumeId,
+    question,
+    conversation_history: conversationHistory,
+  };
+
+  if (jobDescription && jobDescription.trim()) {
+    payload.job_description = jobDescription.trim();
+  }
+
+  const response = await api.post("/chat", payload);
+  return response.data.reply;
+};
+
 export default api;

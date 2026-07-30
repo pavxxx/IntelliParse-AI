@@ -4,6 +4,7 @@ const Navbar = ({ activeTab = 'home', onSelectTab }) => {
     { id: 'home', label: '01 // UPLOAD' },
     { id: 'resume', label: '02 // RESUME' },
     { id: 'library', label: '03 // LIBRARY' },
+    { id: 'chat', label: '04 // CHAT' },
   ];
 
   return (

@@ -4,6 +4,7 @@ import Container from './components/ui/Container';
 import Home from './pages/Home';
 import Resume from './pages/Resume';
 import Library from './pages/Library';
+import Chat from './pages/Chat';
 
 function App() {
   const [activeTab, setActiveTab] = useState('home');
@@ -27,7 +28,13 @@ function App() {
             />
           )}
           {activeTab === 'library' && (
-            <Library onSelectResume={() => setActiveTab('resume')} />
+            <Library
+              onSelectResume={() => setActiveTab("resume")}
+              setResumeData={setResumeData}
+            />
+          )}
+          {activeTab === 'chat' && (
+            <Chat resumeData={resumeData} />
           )}
         </Container>
       </main>

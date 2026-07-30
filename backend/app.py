@@ -9,7 +9,8 @@ from sqlalchemy import or_
 import json
 from ats import analyze_resume
 from jd_match import match_resume
-from schemas import JobDescriptionRequest
+from schemas import JobDescriptionRequest, ChatRequest
+from chat import chat_with_resume
 from fastapi.middleware.cors import CORSMiddleware
 
 
@@ -45,22 +46,24 @@ async def upload_resume(file: UploadFile = File(...)):
     db = SessionLocal()
 
     resume = Resume(
-        name=parsed_resume["name"],
-        email=parsed_resume["email"],
-        phone=parsed_resume["phone"],
-        skills=json.dumps(parsed_resume["skills"]),
-        education=json.dumps(parsed_resume["education"]),
-        experience=json.dumps(parsed_resume["experience"]),
-        projects=json.dumps(parsed_resume["projects"]),
-        certifications=json.dumps(parsed_resume["certifications"]),
-        github=parsed_resume["github"],
-        linkedin=parsed_resume["linkedin"]
-    )
+    name=parsed_resume["name"],
+    email=parsed_resume["email"],
+    phone=parsed_resume["phone"],
+    skills=parsed_resume["skills"],
+    education=parsed_resume["education"],
+    experience=parsed_resume["experience"],
+    projects=parsed_resume.get("projects", []),
+    certifications=parsed_resume.get("certifications", []),
+    github=parsed_resume.get("github", ""),
+    linkedin=parsed_resume.get("linkedin", "")
+)
 
     db.add(resume)
     db.commit()
     db.refresh(resume)
     db.close()
+
+    parsed_resume["id"] = resume.id
 
     return {
         "message": "Resume parsed successfully",
@@ -77,32 +80,15 @@ def get_resume(resume_id: int):
         db.close()
         return {"message": "Resume not found"}
 
-    resume.skills = json.loads(resume.skills)
-    resume.education = json.loads(resume.education)
-    resume.experience = json.loads(resume.experience)
-    resume.projects=json.loads(resume.projects)
-    resume.certifications=json.loads(resume.certifications)
-
-
     db.close()
 
     return resume
-
 
 @app.get("/resumes")
 def get_resumes():
     db = SessionLocal()
 
     resumes = db.query(Resume).all()
-
-    for resume in resumes:
-        resume.skills = json.loads(resume.skills)
-        resume.education = json.loads(resume.education)
-        resume.experience = json.loads(resume.experience)
-        resume.projects=json.loads(resume.projects)
-        resume.certifications=json.loads(resume.certifications)
-    
-        
 
     db.close()
 
@@ -221,3 +207,39 @@ LinkedIn:
     )
 
     return result
+
+
+@app.post("/chat")
+def chat_endpoint(request: ChatRequest):
+    db = SessionLocal()
+    resume = db.query(Resume).filter(Resume.id == request.resume_id).first()
+    db.close()
+
+    if resume is None:
+        return {"error": f"Resume with id {request.resume_id} not found."}
+
+    # Assemble a plain dict from stored columns — no PDF, no raw text
+    resume_dict = {
+        "name": resume.name,
+        "email": resume.email,
+        "phone": resume.phone,
+        "skills": json.loads(resume.skills) if isinstance(resume.skills, str) else resume.skills,
+        "education": json.loads(resume.education) if isinstance(resume.education, str) else resume.education,
+        "experience": json.loads(resume.experience) if isinstance(resume.experience, str) else resume.experience,
+        "projects": json.loads(resume.projects) if isinstance(resume.projects, str) else resume.projects,
+        "certifications": json.loads(resume.certifications) if isinstance(resume.certifications, str) else resume.certifications,
+        "github": resume.github,
+        "linkedin": resume.linkedin,
+    }
+
+    # Convert Pydantic models to plain dicts for chat module
+    history = [{"role": m.role, "content": m.content} for m in request.conversation_history]
+
+    reply = chat_with_resume(
+        resume_dict=resume_dict,
+        question=request.question,
+        conversation_history=history,
+        job_description=request.job_description,
+    )
+
+    return {"reply": reply}
