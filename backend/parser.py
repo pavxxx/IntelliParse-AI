@@ -1,15 +1,4 @@
-import os
-from dotenv import load_dotenv
-from google import genai
-import json
-
-# Load variables from .env
-load_dotenv()
-
-# Create Gemini client
-client = genai.Client(
-    api_key=os.getenv("GEMINI_API_KEY")
-)
+from llm_service import generate_json
 
 def parse_resume(text):
     prompt = f"""
@@ -48,9 +37,4 @@ Resume:
 {text}
 """
 
-    response = client.models.generate_content(
-        model="models/gemini-3.1-flash-lite",
-        contents=prompt
-    )
-
-    return json.loads(response.text)
+    return generate_json(prompt)

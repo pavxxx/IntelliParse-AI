@@ -1,13 +1,5 @@
-import os
 import json
-from dotenv import load_dotenv
-from google import genai
-
-load_dotenv()
-
-client = genai.Client(
-    api_key=os.getenv("GEMINI_API_KEY")
-)
+from llm_service import generate_text
 
 # ---------------------------------------------------------------------------
 # System preamble — fixed, token-efficient
@@ -36,7 +28,7 @@ def chat_with_resume(
     job_description: str | None = None
 ) -> str:
     """
-    Construct a single compact Gemini prompt and return the assistant reply.
+    Construct a single compact prompt and return the assistant reply.
 
     Args:
         resume_dict: Parsed resume data from SQLite (plain Python dict).
@@ -72,11 +64,8 @@ def chat_with_resume(
     prompt = "\n".join(sections)
 
     try:
-        response = client.models.generate_content(
-            model="models/gemini-3.1-flash-lite",
-            contents=prompt
-        )
-        return response.text.strip()
+        return generate_text(prompt)
     except Exception as e:
-        print(f"Gemini API Error in chat_with_resume: {e}")
+        print(f"LLM API Error in chat_with_resume: {e}")
         return f"Unable to generate response at this time. (Error: {str(e)})"
+
