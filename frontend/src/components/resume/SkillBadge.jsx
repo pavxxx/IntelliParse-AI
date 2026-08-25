@@ -1,10 +1,10 @@
 // TODO: Badge component for rendering individual skill items.
 const SkillBadge = ({ skill, variant = 'default', className = '' }) => {
   const variantStyles = {
-    default: 'bg-white text-[#111111] border-[#111111]',
-    accent: 'bg-[#2563EB] text-white border-[#111111]',
-    dark: 'bg-[#111111] text-white border-[#111111]',
-    success: 'bg-[#22C55E] text-[#111111] border-[#111111]',
+    default: 'bg-[#444444] text-[#E0E0E0] border-[#888888]',
+    accent: 'bg-[#121212] text-[#E0E0E0] border-[#888888]',
+    dark: 'bg-[#121212] text-[#B0B0B0] border-[#888888]',
+    success: 'bg-[#888888] text-[#121212] border-[#121212]',
   };
 
   return (

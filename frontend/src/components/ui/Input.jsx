@@ -17,9 +17,9 @@ const Input = ({
       {label && (
         <label
           htmlFor={id || name}
-          className="text-xs font-extrabold uppercase tracking-widest text-[#111111]"
+          className="text-xs font-extrabold uppercase tracking-widest text-[#E0E0E0]"
         >
-          {label} {required && <span className="text-[#EF4444]">*</span>}
+          {label} {required && <span className="text-[#E0E0E0]">*</span>}
         </label>
       )}
       <input
@@ -30,11 +30,11 @@ const Input = ({
         onChange={onChange}
         placeholder={placeholder}
         required={required}
-        className={`w-full border-3 border-[#111111] bg-white text-[#111111] font-bold text-base px-5 py-4 focus:outline-none focus:border-[#2563EB] placeholder:text-[#111111]/40 uppercase tracking-wide transition-colors ${className}`}
+        className={`w-full border-3 border-[#888888] bg-[#121212] text-[#E0E0E0] font-bold text-base px-5 py-4 focus:outline-none focus:border-[#E0E0E0] placeholder:text-[#888888] uppercase tracking-wide transition-colors ${className}`}
         {...props}
       />
       {error && (
-        <span className="text-xs font-bold text-[#EF4444] uppercase tracking-wider">
+        <span className="text-xs font-bold text-[#E0E0E0] uppercase tracking-wider">
           {error}
         </span>
       )}

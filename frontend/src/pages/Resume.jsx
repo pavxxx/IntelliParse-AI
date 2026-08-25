@@ -32,52 +32,52 @@ const Resume = ({ onBackToUpload, resumeData }) => {
         }
       />
 
-      <div className="border-3 border-[#111111] bg-white p-8 space-y-6">
-        <div className="border-b-3 border-[#111111] pb-4 flex justify-between items-center">
-          <div className="text-xs font-extrabold uppercase tracking-widest text-[#111111]/70">
+      <div className="border-3 border-[#888888] bg-[#121212] p-8 space-y-6">
+        <div className="border-b-3 border-[#888888] pb-4 flex justify-between items-center">
+          <div className="text-xs font-extrabold uppercase tracking-widest text-[#B0B0B0]">
             TECHNICAL REPORT SPECIFICATION
           </div>
         </div>
 
         {/* CANDIDATE IDENTITY */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 border-b-3 border-[#111111] pb-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 border-b-3 border-[#888888] pb-6">
           <div>
-            <div className="text-xs font-extrabold uppercase tracking-wider text-[#111111]/60 mb-1">
+            <div className="text-xs font-extrabold uppercase tracking-wider text-[#B0B0B0] mb-1">
               NAME
             </div>
-            <div className="text-xl font-extrabold uppercase text-[#111111]">
+            <div className="text-xl font-extrabold uppercase text-[#E0E0E0]">
               {resumeData.name || 'N/A'}
             </div>
           </div>
           <div>
-            <div className="text-xs font-extrabold uppercase tracking-wider text-[#111111]/60 mb-1">
+            <div className="text-xs font-extrabold uppercase tracking-wider text-[#B0B0B0] mb-1">
               EMAIL
             </div>
-            <div className="text-base font-bold text-[#111111]">
+            <div className="text-base font-bold text-[#E0E0E0]">
               {resumeData.email || 'N/A'}
             </div>
           </div>
           <div>
-            <div className="text-xs font-extrabold uppercase tracking-wider text-[#111111]/60 mb-1">
+            <div className="text-xs font-extrabold uppercase tracking-wider text-[#B0B0B0] mb-1">
               PHONE
             </div>
-            <div className="text-base font-bold text-[#111111]">
+            <div className="text-base font-bold text-[#E0E0E0]">
               {resumeData.phone || 'N/A'}
             </div>
             <div className="mt-2">
-              <div className="text-xs font-extrabold uppercase tracking-wider text-[#111111]/60 mb-1">
+              <div className="text-xs font-extrabold uppercase tracking-wider text-[#B0B0B0] mb-1">
                 GITHUB
               </div>
-              <div className="text-base font-bold text-[#111111]">
-                {resumeData.github || 'N/A'}
+              <div className="text-base font-bold text-[#E0E0E0] break-all">
+                {Array.isArray(resumeData.github) ? resumeData.github.join(', ') : (resumeData.github || 'N/A')}
               </div>
             </div>
             <div className="mt-2">
-              <div className="text-xs font-extrabold uppercase tracking-wider text-[#111111]/60 mb-1">
+              <div className="text-xs font-extrabold uppercase tracking-wider text-[#B0B0B0] mb-1">
                 LINKEDIN
               </div>
-              <div className="text-base font-bold text-[#111111]">
-                {resumeData.linkedin || 'N/A'}
+              <div className="text-base font-bold text-[#E0E0E0] break-all">
+                {Array.isArray(resumeData.linkedin) ? resumeData.linkedin.join(', ') : (resumeData.linkedin || 'N/A')}
               </div>
             </div>
           </div>
@@ -95,7 +95,7 @@ const Resume = ({ onBackToUpload, resumeData }) => {
                 />
               ))
             ) : (
-              <p className="text-sm text-[#111111]/60 font-bold">No skills found.</p>
+              <p className="text-sm text-[#B0B0B0] font-bold">No skills found.</p>
             )}
           </div>
         </ResumeSection>
@@ -115,25 +115,25 @@ const Resume = ({ onBackToUpload, resumeData }) => {
                 return (
                   <div
                     key={index}
-                    className="border-b-2 border-[#111111]/20 pb-3"
+                    className="border-b-2 border-[#888888] pb-3"
                   >
                     <div className="flex justify-between items-start font-bold">
-                      <span className="text-lg uppercase">
+                      <span className="text-lg uppercase text-[#E0E0E0]">
                         {exp.title || exp.role || 'Position'}
                       </span>
-                      <span className="text-xs bg-[#111111] text-white px-2 py-0.5">
+                      <span className="text-xs bg-[#121212] text-[#E0E0E0] px-2 py-0.5 border border-[#888888]">
                         {exp.period || exp.duration || exp.dates || ''}
                       </span>
                     </div>
 
-                    <p className="text-xs font-bold text-[#111111]/70 uppercase mt-1">
+                    <p className="text-xs font-bold text-[#B0B0B0] uppercase mt-1">
                       {exp.company || exp.organization || ''}
                     </p>
 
                     {items.length > 0 && (
                       <div className="mt-2 space-y-1">
                         {items.map((item, i) => (
-                          <p key={i} className="text-sm">
+                          <p key={i} className="text-sm text-[#E0E0E0]">
                             • {typeof item === 'string' ? item : JSON.stringify(item)}
                           </p>
                         ))}
@@ -143,7 +143,7 @@ const Resume = ({ onBackToUpload, resumeData }) => {
                 );
               })
             ) : (
-              <p className="text-sm text-[#111111]/60 font-bold">No experience listed.</p>
+              <p className="text-sm text-[#B0B0B0] font-bold">No experience listed.</p>
             )}
           </div>
         </ResumeSection>
@@ -155,31 +155,31 @@ const Resume = ({ onBackToUpload, resumeData }) => {
               education.map((edu, index) => (
                 <div
                   key={index}
-                  className="flex justify-between items-start font-bold border-b-2 border-[#111111]/20 pb-3"
+                  className="flex justify-between items-start font-bold border-b-2 border-[#888888] pb-3"
                 >
                   <div>
-                    <span className="text-lg uppercase">
+                    <span className="text-lg uppercase text-[#E0E0E0]">
                       {edu.degree || edu.field || 'Degree'}
                     </span>
 
-                    <p className="text-xs font-bold text-[#111111]/70 uppercase mt-1">
+                    <p className="text-xs font-bold text-[#B0B0B0] uppercase mt-1">
                       {edu.institution || edu.school || edu.university || ''}
                     </p>
 
                     {edu.gpa && (
-                      <p className="text-sm mt-2">
+                      <p className="text-sm mt-2 text-[#E0E0E0]">
                         GPA: {edu.gpa}
                       </p>
                     )}
                   </div>
 
-                  <span className="text-xs border-2 border-[#111111] px-2 py-0.5">
+                  <span className="text-xs border-2 border-[#888888] bg-[#121212] text-[#E0E0E0] px-2 py-0.5">
                     {edu.year || edu.graduation_year || edu.dates || ''}
                   </span>
                 </div>
               ))
             ) : (
-              <p className="text-sm text-[#111111]/60 font-bold">No education listed.</p>
+              <p className="text-sm text-[#B0B0B0] font-bold">No education listed.</p>
             )}
           </div>
         </ResumeSection>
@@ -189,19 +189,19 @@ const Resume = ({ onBackToUpload, resumeData }) => {
           <ResumeSection title="PROJECTS">
             <div className="space-y-4">
               {projects.map((proj, index) => (
-                <div key={index} className="border-b-2 border-[#111111]/20 pb-3">
+                <div key={index} className="border-b-2 border-[#888888] pb-3">
                   <div className="flex justify-between items-start font-bold">
-                    <span className="text-lg uppercase">
+                    <span className="text-lg uppercase text-[#E0E0E0]">
                       {proj.project_name || proj.name || 'Project'}
                     </span>
                   </div>
                   {proj.technologies && (
-                    <p className="text-xs font-bold text-[#2563EB] uppercase mt-1">
+                    <p className="text-xs font-bold text-[#B0B0B0] uppercase mt-1">
                       Tech: {Array.isArray(proj.technologies) ? proj.technologies.join(', ') : proj.technologies}
                     </p>
                   )}
                   {proj.description && (
-                    <p className="text-sm mt-2">{proj.description}</p>
+                    <p className="text-sm mt-2 text-[#E0E0E0]">{proj.description}</p>
                   )}
                 </div>
               ))}
@@ -214,7 +214,7 @@ const Resume = ({ onBackToUpload, resumeData }) => {
           <ResumeSection title="CERTIFICATIONS">
             <div className="space-y-2">
               {certifications.map((cert, index) => (
-                <p key={index} className="text-sm font-bold">
+                <p key={index} className="text-sm font-bold text-[#E0E0E0]">
                   • {typeof cert === 'string' ? cert : cert.name || JSON.stringify(cert)}
                 </p>
               ))}

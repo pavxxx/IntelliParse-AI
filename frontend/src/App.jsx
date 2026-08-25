@@ -11,7 +11,7 @@ function App() {
   const [resumeData, setResumeData] = useState(null);
 
   return (
-    <div className="min-h-screen bg-[#F5F5F5] text-[#111111] font-mono selection:bg-[#2563EB] selection:text-white flex flex-col">
+    <div className="min-h-screen bg-[#444444] text-[#E0E0E0] font-mono selection:bg-[#E0E0E0] selection:text-[#121212] flex flex-col">
       <Navbar activeTab={activeTab} onSelectTab={setActiveTab} />
       <main className="flex-1">
         <Container>
@@ -39,10 +39,10 @@ function App() {
         </Container>
       </main>
 
-      <footer className="border-t-3 border-[#111111] bg-white py-6 mt-12">
-        <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs font-extrabold uppercase tracking-widest text-[#111111]/70">
-          <div>INTELLIPARSE AI // DOCUMENT ENGINE v1.0.0</div>
-          <div>POWERED BY MODERN DIGITAL BRUTALISM</div>
+      <footer className="border-t-3 border-[#121212] bg-[#121212] py-6 mt-12">
+        <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs font-extrabold uppercase tracking-widest text-[#B0B0B0]">
+          <div>INTELLIPARSE AI // DOCUMENT ENGINE v1</div>
+          <div>by Pavithra</div>
         </div>
       </footer>
     </div>

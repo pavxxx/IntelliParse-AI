@@ -2,16 +2,22 @@ from database import Base, engine, SessionLocal
 from fastapi import FastAPI, UploadFile, File
 import os
 import shutil
+import time
+import re
+import json
 from pdf_reader import extract_text_from_pdf
 from parser import parse_resume
 from models import Resume
-from sqlalchemy import or_
-import json
 from ats import analyze_resume
 from jd_match import match_resume
 from schemas import JobDescriptionRequest, ChatRequest
 from chat import chat_with_resume
 from fastapi.middleware.cors import CORSMiddleware
+from normalizer import (
+    normalize_parsed_resume,
+    serialize_for_db,
+    format_resume_response,
+)
 
 
 app = FastAPI()
@@ -29,75 +35,142 @@ Base.metadata.create_all(bind=engine)
 UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
+
 @app.get("/")
 def home():
     return {"message": "Welcome to IntelliParse AI"}
 
+
 @app.post("/upload-resume")
 async def upload_resume(file: UploadFile = File(...)):
+    t0 = time.time()
+
     file_path = os.path.join(UPLOAD_DIR, file.filename)
 
+    # Save uploaded file
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
+    # --------------------------------------------------
+    # 1. Extract text from PDF
+    # --------------------------------------------------
+    t_pdf_start = time.time()
+
     extracted_text = extract_text_from_pdf(file_path)
-    parsed_resume = parse_resume(extracted_text)
+    cleaned_text = re.sub(r'\n{3,}', '\n\n', extracted_text).strip()
+
+    t_pdf_end = time.time()
+    print(f"[PERF] PDF extraction: {t_pdf_end - t_pdf_start:.2f}s")
+
+    # --------------------------------------------------
+    # 2. Parse resume using LLM
+    # --------------------------------------------------
+    t_llm_start = time.time()
+
+    raw_parsed = parse_resume(cleaned_text)
+
+    t_llm_end = time.time()
+    print(f"[PERF] LLM generation: {t_llm_end - t_llm_start:.2f}s")
+
+    # --------------------------------------------------
+    # 3. Normalize parsed data
+    # --------------------------------------------------
+    norm_parsed = normalize_parsed_resume(raw_parsed)
+    db_fields = serialize_for_db(norm_parsed)
+
+    # --------------------------------------------------
+    # 4. CREATE or UPDATE resume
+    # --------------------------------------------------
+    t_db_start = time.time()
 
     db = SessionLocal()
 
-    resume = Resume(
-    name=parsed_resume["name"],
-    email=parsed_resume["email"],
-    phone=parsed_resume["phone"],
-    skills=parsed_resume["skills"],
-    education=parsed_resume["education"],
-    experience=parsed_resume["experience"],
-    projects=parsed_resume.get("projects", []),
-    certifications=parsed_resume.get("certifications", []),
-    github=parsed_resume.get("github", ""),
-    linkedin=parsed_resume.get("linkedin", "")
-)
+    try:
+        # Find existing resume using email
+        existing_resume = None
 
-    db.add(resume)
-    db.commit()
-    db.refresh(resume)
-    db.close()
+        email = db_fields.get("email")
 
-    parsed_resume["id"] = resume.id
+        if email:
+            existing_resume = (
+                db.query(Resume)
+                .filter(Resume.email == email)
+                .first()
+            )
+
+        if existing_resume:
+            # ------------------------------------------
+            # UPDATE existing resume
+            # ------------------------------------------
+            for key, value in db_fields.items():
+                setattr(existing_resume, key, value)
+
+            db.commit()
+            db.refresh(existing_resume)
+
+            resume = existing_resume
+            message = "Resume updated successfully"
+
+        else:
+            # ------------------------------------------
+            # CREATE new resume
+            # ------------------------------------------
+            resume = Resume(**db_fields)
+
+            db.add(resume)
+            db.commit()
+            db.refresh(resume)
+
+            message = "Resume created successfully"
+
+        # Format response
+        response_data = format_resume_response(resume)
+        resume_id = resume.id
+
+    finally:
+        db.close()
+
+    t_db_end = time.time()
+
+    print(f"[PERF] DB save: {t_db_end - t_db_start:.2f}s")
+
+    # --------------------------------------------------
+    # 5. Total performance
+    # --------------------------------------------------
+    total_time = time.time() - t0
+
+    print(f"[PERF] Total upload: {total_time:.2f}s")
 
     return {
-        "message": "Resume parsed successfully",
-        "data": parsed_resume
+        "message": message,
+        "resume_id": resume_id,
+        "data": response_data
     }
 
 @app.get("/resume/{resume_id}")
 def get_resume(resume_id: int):
     db = SessionLocal()
-
     resume = db.query(Resume).filter(Resume.id == resume_id).first()
-
-    if resume is None:
-        db.close()
-        return {"message": "Resume not found"}
-
     db.close()
 
-    return resume
+    if resume is None:
+        return {"message": "Resume not found"}
+
+    return format_resume_response(resume)
+
 
 @app.get("/resumes")
 def get_resumes():
     db = SessionLocal()
-
     resumes = db.query(Resume).all()
-
     db.close()
 
-    return resumes
+    return [format_resume_response(r) for r in resumes]
+
 
 @app.delete("/resume/{resume_id}")
 def delete_resume(resume_id: int):
     db = SessionLocal()
-
     resume = db.query(Resume).filter(Resume.id == resume_id).first()
 
     if resume is None:
@@ -110,95 +183,63 @@ def delete_resume(resume_id: int):
 
     return {"message": "Resume deleted successfully"}
 
+
 @app.get("/search")
-def search_resume(skill:str):
-    db=SessionLocal()
-    resumes =db.query(Resume).filter(Resume.skills.like(f"%{skill}%")).all()
+def search_resume(skill: str):
+    db = SessionLocal()
+    resumes = db.query(Resume).filter(Resume.skills.like(f"%{skill}%")).all()
     db.close()
-    return resumes
+
+    return [format_resume_response(r) for r in resumes]
+
 
 @app.get("/ats/{resume_id}")
 def get_ats_score(resume_id: int):
-
     db = SessionLocal()
-
     resume = db.query(Resume).filter(Resume.id == resume_id).first()
-
     db.close()
 
     if resume is None:
         return {"message": "Resume not found"}
 
+    formatted = format_resume_response(resume)
+
     resume_text = f"""
-Name: {resume.name}
-
-Email:
-{resume.email}
-
-Phone:
-{resume.phone}
-
-Skills:
-{json.loads(resume.skills)}
-
-Education:
-{json.loads(resume.education)}
-
-Experience:
-{json.loads(resume.experience)}
-
-Projects:
-{json.loads(resume.projects)}
-
-Certifications:
-{json.loads(resume.certifications)}
-
-GitHub:
-{resume.github}
-
-LinkedIn:
-{resume.linkedin}
+Name: {formatted['name']}
+Email: {formatted['email']}
+Phone: {formatted['phone']}
+Skills: {json.dumps(formatted['skills'])}
+Education: {json.dumps(formatted['education'])}
+Experience: {json.dumps(formatted['experience'])}
+Projects: {json.dumps(formatted['projects'])}
+Certifications: {json.dumps(formatted['certifications'])}
+GitHub: {formatted['github']}
+LinkedIn: {formatted['linkedin']}
 """
     analysis = analyze_resume(resume_text)
-
     return analysis
+
 
 @app.post("/jd-match/{resume_id}")
 def jd_match(resume_id: int, request: JobDescriptionRequest):
-
     db = SessionLocal()
-
     resume = db.query(Resume).filter(Resume.id == resume_id).first()
-
     db.close()
 
     if resume is None:
         return {"message": "Resume not found"}
 
+    formatted = format_resume_response(resume)
+
     resume_text = f"""
-Name:
-{resume.name}
-
-Skills:
-{json.loads(resume.skills)}
-
-Education:
-{json.loads(resume.education)}
-
-Experience:
-{json.loads(resume.experience)}
-
-Projects:
-{json.loads(resume.projects)}
-
-Certifications:
-{json.loads(resume.certifications)}
-
-GitHub:
-{resume.github}
-
-LinkedIn:
-{resume.linkedin}
+Name: {formatted['name']}
+Skills: {json.dumps(formatted['skills'])}
+Education: {json.dumps(formatted['education'])}
+Experience: {json.dumps(formatted['experience'])}
+Projects: {json.dumps(formatted['projects'])}
+Certifications: {json.dumps(formatted['certifications'])}
+GitHub: {formatted['github']}
+LinkedIn: {formatted['linkedin']}
 """
 
     result = match_resume(
@@ -218,21 +259,8 @@ def chat_endpoint(request: ChatRequest):
     if resume is None:
         return {"error": f"Resume with id {request.resume_id} not found."}
 
-    # Assemble a plain dict from stored columns — no PDF, no raw text
-    resume_dict = {
-        "name": resume.name,
-        "email": resume.email,
-        "phone": resume.phone,
-        "skills": json.loads(resume.skills) if isinstance(resume.skills, str) else resume.skills,
-        "education": json.loads(resume.education) if isinstance(resume.education, str) else resume.education,
-        "experience": json.loads(resume.experience) if isinstance(resume.experience, str) else resume.experience,
-        "projects": json.loads(resume.projects) if isinstance(resume.projects, str) else resume.projects,
-        "certifications": json.loads(resume.certifications) if isinstance(resume.certifications, str) else resume.certifications,
-        "github": resume.github,
-        "linkedin": resume.linkedin,
-    }
+    resume_dict = format_resume_response(resume)
 
-    # Convert Pydantic models to plain dicts for chat module
     history = [{"role": m.role, "content": m.content} for m in request.conversation_history]
 
     reply = chat_with_resume(

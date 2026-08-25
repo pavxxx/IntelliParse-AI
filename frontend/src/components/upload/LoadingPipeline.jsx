@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 
-// TODO: Pipeline progress indicator displaying active analysis stages.
-const LoadingPipeline = ({ isAnalyzing = false, onComplete }) => {
+const LoadingPipeline = ({ isAnalyzing = false }) => {
   const [currentStage, setCurrentStage] = useState(0);
 
   const stages = [
@@ -19,15 +18,14 @@ const LoadingPipeline = ({ isAnalyzing = false, onComplete }) => {
 
     const interval = setInterval(() => {
       setCurrentStage((prev) => {
-        if (prev < stages.length) {
+        // Step up to stage 2 (AI ANALYSIS) and hold there while waiting for LLM/DB
+        if (prev < 2) {
           return prev + 1;
         } else {
-          clearInterval(interval);
-          if (onComplete) onComplete();
           return prev;
         }
       });
-    }, 1200);
+    }, 1500);
 
     return () => clearInterval(interval);
   }, [isAnalyzing]);
@@ -35,14 +33,14 @@ const LoadingPipeline = ({ isAnalyzing = false, onComplete }) => {
   if (!isAnalyzing) return null;
 
   return (
-    <div className="border-3 border-[#111111] bg-white p-8 font-mono text-[#111111]">
-      <div className="flex items-center justify-between border-b-3 border-[#111111] pb-4 mb-6">
+    <div className="border-3 border-[#888888] bg-[#121212] p-8 font-mono text-[#E0E0E0]">
+      <div className="flex items-center justify-between border-b-3 border-[#888888] pb-4 mb-6">
         <div className="text-xl font-extrabold uppercase tracking-tight flex items-center gap-3">
-          <span className="inline-block w-3 h-3 bg-[#2563EB]"></span>
+          <span className="inline-block w-3 h-3 bg-[#E0E0E0] animate-ping"></span>
           SYSTEM STATUS // PROCESSING PIPELINE
         </div>
-        <div className="text-xs font-bold uppercase tracking-widest bg-[#111111] text-white px-3 py-1">
-          {currentStage >= stages.length ? 'COMPLETE' : 'EXECUTING...'}
+        <div className="text-xs font-bold uppercase tracking-widest bg-[#888888] text-[#121212] px-3 py-1">
+          EXECUTING...
         </div>
       </div>
 
@@ -55,26 +53,26 @@ const LoadingPipeline = ({ isAnalyzing = false, onComplete }) => {
             <div key={stage.title} className="space-y-2">
               <div className="flex items-center justify-between text-sm font-extrabold tracking-wider uppercase">
                 <span className="flex items-center gap-3">
-                  <span className={`w-6 h-6 border-2 border-[#111111] flex items-center justify-center font-bold ${
-                    isDone ? 'bg-[#22C55E] text-white' : isActive ? 'bg-[#2563EB] text-white' : 'bg-[#F5F5F5] text-[#111111]'
+                  <span className={`w-6 h-6 border-2 flex items-center justify-center font-bold ${
+                    isDone ? 'bg-[#E0E0E0] text-[#121212] border-[#E0E0E0]' : isActive ? 'bg-[#888888] text-[#121212] border-[#888888]' : 'bg-[#444444] text-[#B0B0B0] border-[#888888]'
                   }`}>
                     {isDone ? '✓' : idx + 1}
                   </span>
                   {stage.title}
                 </span>
-                <span className="text-xs font-bold opacity-70">
+                <span className="text-xs font-bold text-[#B0B0B0]">
                   {isDone ? 'COMPLETED' : isActive ? 'IN PROGRESS' : 'WAITING'}
                 </span>
               </div>
 
               {/* Brutalist Progress Bar Box */}
-              <div className="border-2 border-[#111111] bg-[#F5F5F5] p-2 tracking-widest text-xs font-bold overflow-hidden select-none">
+              <div className="border-2 border-[#888888] bg-[#444444] p-2 tracking-widest text-xs font-bold overflow-hidden select-none">
                 {isDone ? (
-                  <span className="text-[#22C55E]">■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■</span>
+                  <span className="text-[#E0E0E0]">■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■</span>
                 ) : isActive ? (
-                  <span className="text-[#2563EB] animate-pulse">■■■■■■■■■■■■■□□□□□□□□□□□□□□□□□</span>
+                  <span className="text-[#E0E0E0] animate-pulse">■■■■■■■■■■■■■□□□□□□□□□□□□□□□□□</span>
                 ) : (
-                  <span className="text-[#111111]/30">□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□</span>
+                  <span className="text-[#888888]">□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□</span>
                 )}
               </div>
             </div>
@@ -86,3 +84,4 @@ const LoadingPipeline = ({ isAnalyzing = false, onComplete }) => {
 };
 
 export default LoadingPipeline;
+

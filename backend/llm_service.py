@@ -26,7 +26,7 @@ def generate_text(prompt: str) -> str:
     if provider == "ollama":
         base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434").rstrip("/")
         model = os.getenv("OLLAMA_MODEL", "llama3.2")
-        print(f"🤖 [LLM Service] Calling Ollama model: '{model}' at {base_url}")
+        print(f"[LLM Service] Calling Ollama model: '{model}' at {base_url}")
         url = f"{base_url}/api/generate"
 
         payload = {
@@ -55,7 +55,7 @@ def generate_text(prompt: str) -> str:
         if not api_key:
             raise ValueError("GEMINI_API_KEY environment variable is not set.")
         gemini_model = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
-        print(f"🌐 [LLM Service] Calling Gemini API ({gemini_model})")
+        print(f"[LLM Service] Calling Gemini API ({gemini_model})")
         client = genai.Client(api_key=api_key)
         response = client.models.generate_content(
             model=gemini_model,
@@ -73,7 +73,7 @@ def generate_json(prompt: str) -> dict:
     if provider == "ollama":
         base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434").rstrip("/")
         model = os.getenv("OLLAMA_MODEL", "llama3.2")
-        print(f"🤖 [LLM Service] Calling Ollama model: '{model}' at {base_url} (JSON mode)")
+        print(f"[LLM Service] Calling Ollama model: '{model}' at {base_url} (JSON mode)")
         url = f"{base_url}/api/generate"
 
         payload = {
@@ -91,7 +91,14 @@ def generate_json(prompt: str) -> dict:
         try:
             with urllib.request.urlopen(req) as resp:
                 result = json.loads(resp.read().decode("utf-8"))
+                print(f"[OLLAMA] total_duration: {result.get('total_duration', 0) / 1e9:.2f}s")
+                print(f"[OLLAMA] load_duration: {result.get('load_duration', 0) / 1e9:.2f}s")
+                print(f"[OLLAMA] prompt_eval_duration: {result.get('prompt_eval_duration', 0) / 1e9:.2f}s")
+                print(f"[OLLAMA] eval_duration: {result.get('eval_duration', 0) / 1e9:.2f}s")
+                print(f"[OLLAMA] prompt_eval_count: {result.get('prompt_eval_count', 0)}")
+                print(f"[OLLAMA] eval_count: {result.get('eval_count', 0)}")
                 raw_text = result.get("response", "")
+                print(f"[PERF] LLM output length: {len(raw_text)} characters")
                 cleaned = clean_json_string(raw_text)
                 return json.loads(cleaned)
         except urllib.error.URLError as e:

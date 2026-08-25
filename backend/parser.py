@@ -1,40 +1,52 @@
 from llm_service import generate_json
 
 def parse_resume(text):
-    prompt = f"""
-Convert the following resume into JSON.
-
-Return ONLY valid JSON.
-
-Format:
-
+    prompt = f"""Extract the resume details into valid JSON matching this schema:
 {{
-    "name": "",
-    "email": "",
-    "phone": "",
-    "skills": [],
-    "education": [],
-    "experience": [],
-    "projects": [],
-    "certifications": [],
-    "github": "",
-    "linkedin": ""
+  "name": "",
+  "email": "",
+  "phone": "",
+  "skills": [],
+  "education": [
+    {{
+      "degree": "",
+      "institution": "",
+      "year": "",
+      "gpa": ""
+    }}
+  ],
+  "experience": [
+    {{
+      "title": "",
+      "company": "",
+      "period": "",
+      "responsibilities": []
+    }}
+  ],
+  "projects": [
+    {{
+      "project_name": "",
+      "technologies": "",
+      "description": ""
+    }}
+  ],
+  "certifications": [],
+  "github": "",
+  "linkedin": ""
 }}
 
-Extract every project mentioned.
+Rules:
+1. Return ONLY valid JSON.
+2. Extract all skills, education items, work experiences, projects, certifications, GitHub, and LinkedIn URLs.
+3. If a field is missing, use empty string "" or empty list [].
 
-For each project include:
-- project_name
-- technologies
-- description
-
-Extract all certifications.
-Extract GitHub URL if available.
-Extract LinkedIn URL if available.
-
-Resume:
-
+Resume Text:
 {text}
+
 """
 
-    return generate_json(prompt)
+    print(f"[PERF] Resume text length: {len(text)} characters")
+    print(f"[PERF] Prompt length: {len(prompt)} characters")
+
+    return generate_json(prompt)
+

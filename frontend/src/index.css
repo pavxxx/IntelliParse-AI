@@ -8,8 +8,8 @@
   }
 
   body {
-    background-color: #F5F5F5;
-    color: #111111;
+    background-color: #444444;
+    color: #E0E0E0;
     font-family: 'Space Grotesk', sans-serif;
     margin: 0;
     padding: 0;
@@ -25,27 +25,27 @@
 
 /* Brutalist Utility Classes */
 .brutalist-border {
-  border: 3px solid #111111;
+  border: 3px solid #121212;
 }
 
 .brutalist-border-t {
-  border-top: 3px solid #111111;
+  border-top: 3px solid #121212;
 }
 
 .brutalist-border-b {
-  border-bottom: 3px solid #111111;
+  border-bottom: 3px solid #121212;
 }
 
 .brutalist-border-l {
-  border-left: 3px solid #111111;
+  border-left: 3px solid #121212;
 }
 
 .brutalist-border-r {
-  border-right: 3px solid #111111;
+  border-right: 3px solid #121212;
 }
 
 .brutalist-btn {
-  border: 3px solid #111111;
+  border: 3px solid #E0E0E0;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -53,18 +53,19 @@
 }
 
 .brutalist-card {
-  border: 3px solid #111111;
-  background-color: #FFFFFF;
+  border: 3px solid #888888;
+  background-color: #121212;
+  color: #E0E0E0;
 }
 
 .brutalist-input {
-  border: 3px solid #111111;
-  background-color: #FFFFFF;
-  color: #111111;
+  border: 3px solid #888888;
+  background-color: #121212;
+  color: #E0E0E0;
   outline: none;
 }
 
 .brutalist-input:focus {
-  background-color: #FFFFFF;
-  border-color: #2563EB;
+  background-color: #121212;
+  border-color: #E0E0E0;
 }

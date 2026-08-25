@@ -4,7 +4,6 @@ import UploadBox from '../components/upload/UploadBox';
 import LoadingPipeline from '../components/upload/LoadingPipeline';
 import { uploadResume } from "../services/api";
 
-// TODO: Home page featuring file upload and initial dashboard view.
 const Home = ({ onViewResume, setResumeData }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -16,31 +15,28 @@ const Home = ({ onViewResume, setResumeData }) => {
     }
 
     try {
+      // Clear the previously displayed resume immediately
+      setResumeData(null);
+
+      // Show loading screen while the new resume is processed
       setIsAnalyzing(true);
 
       const response = await uploadResume(selectedFile);
 
+      // Store the newly parsed resume
       setResumeData(response.data);
 
-      console.log(response.data);
+      console.log("New resume:", response.data);
 
-      setTimeout(() => {
-        onViewResume();
-      }, 800);
-
-      // We'll use this response in the next step
-    } catch (error) {
-      console.error(error);
-      alert("Failed to upload resume.");
       setIsAnalyzing(false);
-    }
-  };
-
-  const handlePipelineComplete = () => {
-    if (onViewResume) {
-      setTimeout(() => {
+      if (onViewResume) {
         onViewResume();
-      }, 800);
+      }
+
+    } catch (error) {
+      console.error("Upload failed:", error);
+      alert("Failed to upload resume. Ensure backend and Ollama/Gemini are active.");
+      setIsAnalyzing(false);
     }
   };
 
@@ -61,7 +57,6 @@ const Home = ({ onViewResume, setResumeData }) => {
       ) : (
         <LoadingPipeline
           isAnalyzing={isAnalyzing}
-          onComplete={handlePipelineComplete}
         />
       )}
     </div>
