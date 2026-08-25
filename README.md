@@ -1,9 +1,9 @@
-## 🏗️ System Architecture
+## System Architecture
 
 ```mermaid
 flowchart TD
 
-    User["👤 User"]
+    User["User"]
 
     Frontend["React + Vite Frontend"]
 
@@ -57,4 +57,55 @@ flowchart TD
     Chat --> LLM
 
     API --> Frontend
+```
+## Deployment Architecture
+
+```mermaid
+flowchart TB
+
+    USER["User"]
+
+    subgraph CLIENT["Client"]
+        BROWSER["Web Browser"]
+        FRONTEND["React + Vite"]
+    end
+
+    subgraph CLOUD["Cloud Deployment"]
+        BACKEND["FastAPI Backend"]
+
+        subgraph PROCESSING["Document Processing"]
+            PDF["PyMuPDF"]
+            PARSER["Resume Parser"]
+            NORMALIZER["Data Normalizer"]
+        end
+
+        ATS["ATS Analysis"]
+        JDM["JD Matching"]
+        CHAT["Resume Chat"]
+    end
+
+    GEMINI["Google Gemini API"]
+    DATABASE[("SQLite Database")]
+
+    USER --> BROWSER
+    BROWSER --> FRONTEND
+    FRONTEND -->|HTTPS REST API| BACKEND
+
+    BACKEND --> PDF
+    PDF --> PARSER
+    PARSER --> NORMALIZER
+
+    NORMALIZER --> DATABASE
+
+    BACKEND --> ATS
+    BACKEND --> JDM
+    BACKEND --> CHAT
+
+    PARSER --> GEMINI
+    ATS --> GEMINI
+    JDM --> GEMINI
+    CHAT --> GEMINI
+
+    DATABASE --> BACKEND
+    BACKEND --> FRONTEND
 ```
