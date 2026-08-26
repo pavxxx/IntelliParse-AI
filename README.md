@@ -21,14 +21,6 @@
 
 </p>
 
-<p align="center">
-
-![GitHub last commit](https://img.shields.io/github/last-commit/pavxxx/IntelliParse-AI?style=flat-square)
-![GitHub stars](https://img.shields.io/github/stars/pavxxx/IntelliParse-AI?style=flat-square)
-![GitHub repo size](https://img.shields.io/github/repo-size/pavxxx/IntelliParse-AI?style=flat-square)
-
-</p>
-
 ---
 
 ## Overview
